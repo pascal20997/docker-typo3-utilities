@@ -1,0 +1,83 @@
+image: docker:stable
+
+stages:
+  - build
+  - test
+  - release
+
+# When using dind, it's wise to use the overlayfs driver for
+# improved performance.
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_REGISTRY: docker-registry.kronova.net
+  CONTAINER_TEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:commit-$CI_COMMIT_SHA
+  CONTAINER_LATEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:latest
+  CONTAINER_TAGGED_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:$CI_COMMIT_REF_NAME
+  CONTAINER_DOCKERHUB: kronova/typo3-utilities
+services:
+  - docker:dind
+
+before_script:
+  - echo "$CI_BUILD_TOKEN" | docker login --username gitlab-ci-token $DOCKER_REGISTRY --password-stdin
+
+build:
+  stage: build
+  script:
+    - docker build -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
+  only:
+    - master
+
+# todo: add better tests
+test-php:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE php -v
+  only:
+    - master
+
+test-composer:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE composer -V
+  only:
+    - master
+
+test-imagemagick:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE convert -version
+  only:
+    - master
+
+release-latest:
+  stage: release
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_LATEST_IMAGE
+    - docker push $CONTAINER_LATEST_IMAGE
+  only:
+    - master
+
+release-tagged:
+  stage: release
+  script:
+    - docker pull $CONTAINER_LATEST_IMAGE
+    - docker tag $CONTAINER_LATEST_IMAGE $CONTAINER_TAGGED_IMAGE
+    - docker push $CONTAINER_TAGGED_IMAGE
+  only:
+    - tags
+
+push-on-dockerhub:
+  stage: release
+  before_script:
+  script:
+    - docker pull $CONTAINER_LATEST_IMAGE
+    - docker tag $CONTAINER_LATEST_IMAGE $CONTAINER_DOCKERHUB
+    - docker logout
+    - echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
+    - docker push $CONTAINER_DOCKERHUB
+    
