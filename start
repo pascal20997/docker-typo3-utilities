@@ -1,5 +1,16 @@
 #/bin/bash
 
+# check if document root exists
+PROJECT_ROOT="$(echo "${DOCUMENT_ROOT}" | rev | cut -d'/' -f2- | rev)"
+if [ ! -d "${PROJECT_ROOT}" ]; then
+    echo "Create project root..."
+    if ! mkdir -p "${PROJECT_ROOT}"
+    then
+        echo "Could not create project root ${PROJECT_ROOT}!"
+        exit 1
+    fi
+fi
+
 # install TYPO3 if INSTALL_TYPO3 = true
 if [ "${INSTALL_TYPO3}" = "true" ]; then
     echo "Check if composer.json exists..."
