@@ -38,4 +38,3 @@ if [ "${START_SSHD}" = "true" ]; then
         exit 1
     fi
 fi
-

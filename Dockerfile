@@ -7,7 +7,7 @@ ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.0-beta
 ENV START_SSHD true
 ENV INSTALL_TYPO3 true
 ENV TYPO3_VERSION "^9.5"
-ENV DOCUMENT_ROOT /usr/local/apache2/htdocs
+ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 
 RUN apt-get update && apt-get install -y openssh-server vim nano cron
 
@@ -37,4 +37,5 @@ RUN apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /usr/local/apache2/htdocs
+USER typo3
 CMD ["start"]
