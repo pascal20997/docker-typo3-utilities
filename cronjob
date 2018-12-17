@@ -10,3 +10,7 @@ fi
 if [ -d "/usr/local/apache2/htdocs/web/typo3/sysext/core/bin/typo3" ]; then
     /usr/local/apache2/htdocs/web/typo3/sysext/core/bin/typo3 scheduler:run
 fi
+
+if [ -d "/usr/local/apache2/htdocs/public/typo3/sysext/core/bin/typo3" ]; then
+    /usr/local/apache2/htdocs/public/typo3/sysext/core/bin/typo3 scheduler:run
+fi
