@@ -1,5 +1,13 @@
 #/bin/bash
 
+# start openssh-server
+if [ "${START_SSH_SERVER}" = "true" ]; then
+    service ssh start
+fi
+
+# run web based stuff as user typo3
+su typo3
+
 # check if document root exists
 PROJECT_ROOT="$(echo "${DOCUMENT_ROOT}" | rev | cut -d'/' -f2- | rev)"
 if [ ! -d "${PROJECT_ROOT}" ]; then

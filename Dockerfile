@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y openssh-server vim nano cron
 RUN echo "\nPermitRootLogin no\nPasswordAuthentication no\nUsePAM no\n" >> /etc/ssh/sshd_config
 
 # auto start openssh-server
-RUN update-rc.d ssh defaults
+RUN systemctl enable ssh
 
 # install surf
 RUN mkdir /usr/local/surf \
@@ -27,7 +27,10 @@ COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 # add user typo3 to allow shell access
-RUN useradd -g 1 -m -s "/bin/bash" -d "/usr/local/apache2/htdocs" typo3
+RUN useradd -g 1 -m -s "/bin/bash" typo3
+
+# symlink htdocs folder into home
+RUN ln -s /usr/local/apache2/htdocs /home/typo3/htdocs
 
 # add log file for cronjob
 RUN touch /var/log/cronjob && chown typo3:daemon /var/log/cronjob
@@ -41,5 +44,4 @@ RUN apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /usr/local/apache2/htdocs
-USER typo3
 CMD ["start.sh"]
