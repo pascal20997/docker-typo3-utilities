@@ -7,14 +7,12 @@ ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.0-beta
 ENV INSTALL_TYPO3 true
 ENV TYPO3_VERSION "^9.5"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
+ENV START_SSH_SERVER true
 
 RUN apt-get update && apt-get install -y openssh-server vim nano cron
 
 # configure openssh-server
 RUN echo "\nPermitRootLogin no\nPasswordAuthentication no\nUsePAM no\n" >> /etc/ssh/sshd_config
-
-# auto start openssh-server
-RUN systemctl enable ssh
 
 # install surf
 RUN mkdir /usr/local/surf \
