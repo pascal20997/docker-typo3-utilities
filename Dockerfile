@@ -24,9 +24,6 @@ RUN mkdir /usr/local/surf \
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-# add user typo3 to allow shell access
-RUN useradd -g 1 -m -s "/bin/bash" typo3
-
 # symlink htdocs folder into home
 RUN ln -s /usr/local/apache2/htdocs /home/typo3/htdocs
 
