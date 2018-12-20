@@ -26,10 +26,8 @@ RUN mkdir /usr/local/surf \
 COPY start /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
-# add user typo3 to group www-data
-RUN useradd -g 33 -m -s "/bin/bash" typo3
-
-RUN touch /var/log/cronjob && chown typo3:33 /var/log/cronjob
+# add log file for cronjob
+RUN touch /var/log/cronjob && chown daemon:daemon /var/log/cronjob
 
 # add crontab
 RUN (crontab -l ; echo "*/5 * * * * typo3 /opt/cronjob >> /var/log/cronjob") | crontab -
@@ -39,5 +37,5 @@ RUN apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /usr/local/apache2/htdocs
-USER typo3
+USER daemon
 CMD ["start"]
