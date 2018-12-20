@@ -29,4 +29,4 @@ else
     echo "Installation of TYPO3 will be skipped because INSTALL_TYPO3 does not equal true..."
 fi
 
-tail -f /dev/stdout
+tail -f /var/log/cronjob

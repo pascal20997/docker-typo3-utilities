@@ -23,19 +23,23 @@ RUN mkdir /usr/local/surf \
     && ln -s /usr/local/surf/surf.phar /usr/local/bin/surf
 
 # install start script
-COPY start /usr/local/bin/start
-RUN chmod +x /usr/local/bin/start
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# add user typo3 to allow shell access
+RUN useradd -g 1 -m -s "/bin/bash" -d "/usr/local/apache2/htdocs" typo3
 
 # add log file for cronjob
-RUN touch /var/log/cronjob && chown daemon:daemon /var/log/cronjob
+RUN touch /var/log/cronjob && chown typo3:daemon /var/log/cronjob
 
 # add crontab
-RUN (crontab -l ; echo "*/5 * * * * typo3 /opt/cronjob >> /var/log/cronjob") | crontab -
+COPY cronjob.sh /opt/cronjob.sh
+RUN (crontab -l ; echo "*/5 * * * * typo3 /opt/cronjob.sh >> /var/log/cronjob") | crontab -
 
 # cleanup
 RUN apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /usr/local/apache2/htdocs
-USER daemon
-CMD ["start"]
+USER typo3
+CMD ["start.sh"]
