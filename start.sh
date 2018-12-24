@@ -12,7 +12,7 @@ su typo3
 PROJECT_ROOT="$(echo "${DOCUMENT_ROOT}" | rev | cut -d'/' -f2- | rev)"
 if [ ! -d "${PROJECT_ROOT}" ]; then
     echo "Create project root..."
-    if ! mkdir -p "${PROJECT_ROOT}"
+    if ! runuser -u typo3 mkdir -p "${PROJECT_ROOT}"
     then
         echo "Could not create project root ${PROJECT_ROOT}!"
         exit 1
@@ -27,7 +27,7 @@ if [ "${INSTALL_TYPO3}" = "true" ]; then
     else
         echo "The file composer.json does not exists! Install TYPO3 ${TYPO3_VERSION}..."
         echo "Run create-project..."
-        if ! composer ${COMPOSER_ADDITIONAL_ARGUMENTS} create-project typo3/cms-base-distribution ${PROJECT_ROOT} ${TYPO3_VERSION}
+        if ! runuser -u typo3 composer ${COMPOSER_ADDITIONAL_ARGUMENTS} create-project typo3/cms-base-distribution ${PROJECT_ROOT} ${TYPO3_VERSION}
         then
             echo "Something went wrong while installing TYPO3 :( Please check the composer output above!"
             exit 1
