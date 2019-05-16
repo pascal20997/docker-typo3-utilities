@@ -20,6 +20,11 @@ RUN mkdir /usr/local/surf \
     && chmod +x /usr/local/surf/surf.phar \
     && ln -s /usr/local/surf/surf.phar /usr/local/bin/surf
 
+# install deployer
+RUN curl -LO https://deployer.org/deployer.phar \
+    && mv deployer.phar /usr/local/bin/dep \
+    && chmod +x /usr/local/bin/dep
+
 # install start script
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
