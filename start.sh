@@ -37,4 +37,5 @@ else
     echo "Installation of TYPO3 will be skipped because INSTALL_TYPO3 does not equal true..."
 fi
 
-tail -f /var/log/cronjob
+# start php-fpm
+php-fpm

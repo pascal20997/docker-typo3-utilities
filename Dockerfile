@@ -9,7 +9,7 @@ ENV TYPO3_VERSION "^9.5"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 ENV START_SSH_SERVER true
 
-RUN apt-get update && apt-get install -y openssh-server vim nano cron parallel
+RUN apt-get update && apt-get install -y openssh-server vim nano parallel
 
 # configure openssh-server
 RUN echo "\nPermitRootLogin no\nPasswordAuthentication no\nUsePAM no\n" >> /etc/ssh/sshd_config
@@ -26,13 +26,6 @@ RUN chmod +x /usr/local/bin/start.sh
 
 # symlink htdocs folder into home
 RUN ln -s /usr/local/apache2/htdocs /home/typo3/htdocs
-
-# add log file for cronjob
-RUN touch /var/log/cronjob && chown typo3:daemon /var/log/cronjob
-
-# add crontab
-COPY cronjob.sh /opt/cronjob.sh
-RUN (crontab -l ; echo "*/5 * * * * typo3 /opt/cronjob.sh >> /var/log/cronjob") | crontab -
 
 # cleanup
 RUN apt-get clean \
