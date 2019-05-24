@@ -4,7 +4,6 @@ LABEL vendor="kronova.net"
 LABEL maintainer="info@kronova.net"
 
 ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.0-beta10/surf.phar
-ENV INSTALL_TYPO3 true
 ENV TYPO3_VERSION "^9.5"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 ENV START_SSH_SERVER true
