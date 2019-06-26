@@ -5,9 +5,10 @@ LABEL maintainer="info@kronova.net"
 
 ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.0-beta10/surf.phar
 ENV WKHTMLTOPDF_DOWNLOAD_URL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
-ENV TYPO3_VERSION "^9.5"
+ENV DEPLOYER_VERSION "^6"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 ENV START_SSH_SERVER true
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.composer/vendor/bin
 
 RUN apt-get update && apt-get install -y openssh-server vim nano parallel
 
@@ -20,10 +21,8 @@ RUN mkdir /usr/local/surf \
     && chmod +x /usr/local/surf/surf.phar \
     && ln -s /usr/local/surf/surf.phar /usr/local/bin/surf
 
-# install deployer
-RUN curl -LO https://deployer.org/deployer.phar \
-    && mv deployer.phar /usr/local/bin/dep \
-    && chmod +x /usr/local/bin/dep
+# install deployer and deployer 3rd party recipes
+RUN composer global require deployer/deployer "${DEPLOYER_VERSION}" && composer global require deployer/recipes --dev
 
 # install wkhtmltopdf
 RUN curl -L ${WKHTMLTOPDF_DOWNLOAD_URL} -o /tmp/wkhtmltopdf.deb \
