@@ -1,4 +1,4 @@
-image: docker:stable
+image: docker:19.03.0
 
 stages:
   - build
@@ -10,12 +10,14 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_REGISTRY: docker-registry.kronova.net
+  DOCKER_TLS_CERTDIR: ""
   CONTAINER_TEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:commit-$CI_COMMIT_SHA
   CONTAINER_LATEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:latest
   CONTAINER_TAGGED_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:$CI_COMMIT_REF_NAME
   CONTAINER_DOCKERHUB: kronova/typo3-utilities
+
 services:
-  - docker:dind
+  - docker:19.03.0-dind
 
 before_script:
   - echo "$CI_BUILD_TOKEN" | docker login --username gitlab-ci-token $DOCKER_REGISTRY --password-stdin
