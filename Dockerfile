@@ -3,7 +3,7 @@ FROM kronova/typo3-php:latest
 LABEL vendor="kronova.net"
 LABEL maintainer="info@kronova.net"
 
-ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.0-beta11/surf.phar
+ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.2/surf.phar
 ENV WKHTMLTOPDF_DOWNLOAD_URL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
 ENV DEPLOYER_VERSION "^6"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
