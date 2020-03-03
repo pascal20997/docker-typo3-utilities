@@ -10,7 +10,7 @@ ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 ENV START_SSH_SERVER true
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.composer/vendor/bin
 
-RUN apt-get update && apt-get install -y openssh-server vim nano parallel
+RUN apt-get update && apt-get install -y openssh-server vim nano parallel rsync
 
 # configure openssh-server
 RUN echo "\nPermitRootLogin no\nPasswordAuthentication no\nUsePAM no\n" >> /etc/ssh/sshd_config
