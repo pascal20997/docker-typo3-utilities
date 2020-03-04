@@ -11,10 +11,9 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_REGISTRY: docker-registry.kronova.net
   DOCKER_TLS_CERTDIR: ""
-  CONTAINER_TEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:commit-$CI_COMMIT_SHA
-  CONTAINER_LATEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:latest
-  CONTAINER_TAGGED_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:$CI_COMMIT_REF_NAME
-  CONTAINER_DOCKERHUB: kronova/typo3-utilities
+  CONTAINER_TEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:latest
+  CONTAINER_DOCKERHUB_LATEST: kronova/typo3-utilities
+  CONTAINER_DOCKERHUB_TAG: kronova/typo3-utilities:$CI_COMMIT_TAG
 
 services:
   - docker:19.03.0-dind
@@ -34,7 +33,6 @@ build:
 test-php:
   stage: test
   script:
-    - docker pull $CONTAINER_TEST_IMAGE
     - docker run $CONTAINER_TEST_IMAGE php -v
   only:
     - master
@@ -42,7 +40,6 @@ test-php:
 test-composer:
   stage: test
   script:
-    - docker pull $CONTAINER_TEST_IMAGE
     - docker run $CONTAINER_TEST_IMAGE composer -V
   only:
     - master
@@ -50,36 +47,53 @@ test-composer:
 test-imagemagick:
   stage: test
   script:
-    - docker pull $CONTAINER_TEST_IMAGE
     - docker run $CONTAINER_TEST_IMAGE convert -version
   only:
     - master
 
-release-latest:
-  stage: release
+test-rsync:
+  stage: test
   script:
-    - docker pull $CONTAINER_TEST_IMAGE
-    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_LATEST_IMAGE
-    - docker push $CONTAINER_LATEST_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE rsync -version
   only:
     - master
 
-release-tagged:
-  stage: release
+test-deployer:
+  stage: test
   script:
-    - docker pull $CONTAINER_LATEST_IMAGE
-    - docker tag $CONTAINER_LATEST_IMAGE $CONTAINER_TAGGED_IMAGE
-    - docker push $CONTAINER_TAGGED_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE dep --version
   only:
-    - tags
+    - master
+
+test-surf:
+  stage: test
+  script:
+    - docker run $CONTAINER_TEST_IMAGE surf --version
+  only:
+    - master
 
 push-on-dockerhub:
   stage: release
-  before_script:
+  before_script: []
   script:
-    - docker pull $CONTAINER_LATEST_IMAGE
-    - docker tag $CONTAINER_LATEST_IMAGE $CONTAINER_DOCKERHUB
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_DOCKERHUB_LATEST
     - docker logout
     - echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
-    - docker push $CONTAINER_DOCKERHUB
-    
+    - docker push $CONTAINER_DOCKERHUB_LATEST
+  only:
+    - master
+  allow_failure: false
+  when: manual
+
+push-tag-on-dockerhub:
+  stage: release
+  before_script: []
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_DOCKERHUB_TAG
+    - docker logout
+    - echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
+    - docker push $CONTAINER_DOCKERHUB_TAG
+  only:
+    - tags
