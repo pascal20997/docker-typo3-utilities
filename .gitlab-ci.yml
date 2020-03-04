@@ -15,6 +15,11 @@ variables:
   CONTAINER_DOCKERHUB_LATEST: kronova/typo3-utilities
   CONTAINER_DOCKERHUB_TAG: kronova/typo3-utilities:$CI_COMMIT_TAG
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - ./.build
+
 services:
   - docker:19.03.0-dind
 
@@ -25,31 +30,46 @@ build:
   stage: build
   script:
     - docker build -t $CONTAINER_TEST_IMAGE .
+    # todo: remove the gitlab container registry completely and use docker hub only
     - docker push $CONTAINER_TEST_IMAGE
+    - mkdir -p ./.build
+    - docker save $CONTAINER_TEST_IMAGE -o ./.build/image.tar
   only:
     - master
 
-# todo: add better tests
+.test:
+  stage: test
+  before_script:
+    # use gitlab-ci cache instead of container registry to bypass the slow pull
+    - docker load < ./.build/image.tar || true
+  only:
+    - master
+
 test-php:
-  stage: test
+  extends: .test
   script:
+    - docker load < ./.build/image.tar || true
     - docker run $CONTAINER_TEST_IMAGE php -v
-  only:
-    - master
 
-test-composer:
-  stage: test
+test-typo3_8:
+  extends: .test
   script:
-    - docker run $CONTAINER_TEST_IMAGE composer -V
-  only:
-    - master
+    - docker run $CONTAINER_TEST_IMAGE composer require typo3/minimal '^8'
+
+test-typo3_9:
+  extends: .test
+  script:
+    - docker run $CONTAINER_TEST_IMAGE composer require typo3/minimal '^9'
+
+test-typo3_10:
+  extends: .test
+  script:
+    - docker run $CONTAINER_TEST_IMAGE composer require typo3/minimal '^10'
 
 test-imagemagick:
-  stage: test
+  extends: .test
   script:
     - docker run $CONTAINER_TEST_IMAGE convert -version
-  only:
-    - master
 
 test-rsync:
   stage: test
@@ -59,18 +79,14 @@ test-rsync:
     - master
 
 test-deployer:
-  stage: test
+  extends: .test
   script:
     - docker run $CONTAINER_TEST_IMAGE dep --version
-  only:
-    - master
 
 test-surf:
-  stage: test
+  extends: .test
   script:
     - docker run $CONTAINER_TEST_IMAGE surf --version
-  only:
-    - master
 
 push-on-dockerhub:
   stage: release
