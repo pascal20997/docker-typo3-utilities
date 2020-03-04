@@ -54,7 +54,7 @@ test-imagemagick:
 test-rsync:
   stage: test
   script:
-    - docker run $CONTAINER_TEST_IMAGE rsync -version
+    - docker run $CONTAINER_TEST_IMAGE rsync --version
   only:
     - master
 
