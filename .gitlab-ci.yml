@@ -11,7 +11,8 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_REGISTRY: docker-registry.kronova.net
   DOCKER_TLS_CERTDIR: ""
-  CONTAINER_TEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:latest
+  CONTAINER_TEST_IMAGE: docker-registry.kronova.net/docker/typo3-utilities:$CI_COMMIT_BRANCH
+  CONTAINER_DOCKERHUB_BRANCH: kronova/typo3-utilities:$CI_COMMIT_BRANCH
   CONTAINER_DOCKERHUB_LATEST: kronova/typo3-utilities
   CONTAINER_DOCKERHUB_TAG: kronova/typo3-utilities:$CI_COMMIT_TAG
 
@@ -36,6 +37,10 @@ build:
     - docker save $CONTAINER_TEST_IMAGE -o ./.build/image.tar
   only:
     - master
+    - /^php-.*$/
+    - /^typo3-.*$/
+  except:
+    - tags
 
 .test:
   stage: test
@@ -45,31 +50,8 @@ build:
   only:
     - master
 
-test-php:
-  extends: .test
-  script:
-    - docker load < ./.build/image.tar || true
-    - docker run $CONTAINER_TEST_IMAGE php -v
-
-test-typo3_8:
-  extends: .test
-  script:
-    - docker run $CONTAINER_TEST_IMAGE composer require typo3/minimal '^8'
-
-test-typo3_9:
-  extends: .test
-  script:
-    - docker run $CONTAINER_TEST_IMAGE composer require typo3/minimal '^9'
-
-test-typo3_10:
-  extends: .test
-  script:
-    - docker run $CONTAINER_TEST_IMAGE composer require typo3/minimal '^10'
-
-test-imagemagick:
-  extends: .test
-  script:
-    - docker run $CONTAINER_TEST_IMAGE convert -version
+# TYPO3-Utilities specific tests
+# other tests moved to kronova/typo3-php
 
 test-rsync:
   stage: test
@@ -112,4 +94,19 @@ push-tag-on-dockerhub:
     - echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
     - docker push $CONTAINER_DOCKERHUB_TAG
   only:
+    - tags
+
+push-branch-on-dockerhub:
+  stage: release
+  before_script: []
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_DOCKERHUB_BRANCH
+    - docker logout
+    - echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin
+    - docker push $CONTAINER_DOCKERHUB_BRANCH
+  only:
+    - /^php-.*$/
+    - /^typo3-.*$/
+  except:
     - tags
