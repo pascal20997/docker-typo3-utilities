@@ -1,4 +1,4 @@
-FROM kronova/typo3-php:latest
+FROM kronova/typo3-php:php-7.4
 
 LABEL vendor="kronova.net"
 LABEL maintainer="info@kronova.net"
