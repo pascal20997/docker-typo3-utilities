@@ -1,11 +1,11 @@
-FROM kronova/typo3-php:latest
+FROM kronova/typo3-php:php-8.0
 
 LABEL vendor="kronova.net"
 LABEL maintainer="info@kronova.net"
 
 ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.2/surf.phar
 ENV WKHTMLTOPDF_DOWNLOAD_URL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
-ENV DEPLOYER_VERSION "^6"
+ENV DEPLOYER_VERSION "v7.0.0-beta.26"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 ENV START_SSH_SERVER true
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.composer/vendor/bin
@@ -22,7 +22,7 @@ RUN mkdir /usr/local/surf \
     && ln -s /usr/local/surf/surf.phar /usr/local/bin/surf
 
 # install deployer and deployer 3rd party recipes
-RUN composer global require deployer/deployer "${DEPLOYER_VERSION}" && composer global require deployer/recipes --dev
+RUN composer global require deployer/dist "${DEPLOYER_VERSION}"
 
 # install wkhtmltopdf
 RUN curl -L ${WKHTMLTOPDF_DOWNLOAD_URL} -o /tmp/wkhtmltopdf.deb \
