@@ -4,7 +4,6 @@ LABEL vendor="kronova.net"
 LABEL maintainer="info@kronova.net"
 
 ENV SURF_DOWNLOAD_URL https://github.com/TYPO3/Surf/releases/download/2.0.2/surf.phar
-ENV WKHTMLTOPDF_DOWNLOAD_URL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
 ENV DEPLOYER_VERSION "^6"
 ENV DOCUMENT_ROOT /usr/local/apache2/htdocs/public
 ENV START_SSH_SERVER true
@@ -24,10 +23,6 @@ RUN mkdir /usr/local/surf \
 # install deployer and deployer 3rd party recipes
 RUN composer global require deployer/deployer "${DEPLOYER_VERSION}" && composer global require deployer/recipes --dev
 
-# install wkhtmltopdf
-RUN curl -L ${WKHTMLTOPDF_DOWNLOAD_URL} -o /tmp/wkhtmltopdf.deb \
-    && apt install -y /tmp/wkhtmltopdf.deb
-
 # install start script
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
@@ -37,7 +32,7 @@ RUN ln -s /usr/local/apache2/htdocs /home/typo3/htdocs
 
 # cleanup
 RUN apt-get clean \
-	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /usr/local/apache2/htdocs
 CMD ["start.sh"]
