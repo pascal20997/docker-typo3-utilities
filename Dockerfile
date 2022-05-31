@@ -1,4 +1,4 @@
-FROM kronova/typo3-php:php-8.0
+FROM kronova/typo3-php:php-8.1
 
 LABEL vendor="kronova.net"
 LABEL maintainer="info@kronova.net"
@@ -37,7 +37,7 @@ RUN ln -s /usr/local/apache2/htdocs /home/typo3/htdocs
 
 # cleanup
 RUN apt-get clean \
-	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /usr/local/apache2/htdocs
 CMD ["start.sh"]
